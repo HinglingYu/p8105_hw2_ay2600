@@ -1,0 +1,17 @@
+---
+title: "Data Science HW 2"
+author: Hingling Yu
+date: 10/01/2023
+output: github_document
+geometry: margin=0.85in
+fontsize: 12pt
+  
+---
+
+## Problem 0
+
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+```
+
