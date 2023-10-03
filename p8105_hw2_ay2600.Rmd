@@ -21,8 +21,8 @@ library(lubridate)
 ### First Step: Cleaning `pols-month.csv`
 
 ```{r clean_538_pols}
-pols <- read_csv("data/data_fivethirtyeight/pols-month.csv") #import the `pols-month.csv` file
-pols_clean <- pols %>% 
+pols = 
+  read_csv("data/data_fivethirtyeight/pols-month.csv") %>% #import the `pols-month.csv` file
   separate(mon, into = c("year", "month", "day"), sep = "-") %>% # split the mon column into three columns: year, month, day using "="
   mutate(
     month = month.name[as.numeric(month)], # converts numeric month values to full month names
@@ -35,8 +35,8 @@ pols_clean <- pols %>%
 
 ### Second Step: Cleaning `snp.csv`
 ```{r clean_538_snp}
-snp <- read_csv("data/data_fivethirtyeight/snp.csv") #import the `snp.csv` file
-snp_clean <- snp %>% 
+snp = 
+  read_csv("data/data_fivethirtyeight/snp.csv") %>% #import the `snp.csv` file
   separate(date, into = c("month", "day", "year"), sep = "/") %>% # split the data column into three columns: month, day, year using "/"
   mutate(
     month = month.name[as.numeric(month)], 
@@ -44,6 +44,23 @@ snp_clean <- snp %>%
     year = ifelse(year < 50, year + 2000, year + 1900) # add 2000 to years value less than 50, 1900 to years value greater or equal to 50
   ) %>% #converts numeric month to full month names
 select(year, month, close, -day) # rearrange the columns so "year" and "month" at first, then "close". Remove "day"
+
+```
+
+
+### Third Step: Tidy `umeployment.csv`
+```{r clean_538_unemployment}
+umeployment = 
+  read_csv("data/data_fivethirtyeight/unemployment.csv") %>%  #import the `unemployment.csv`
+  rename(year = Year) %>% # rename 'Year' column to 'year'
+  pivot_longer(
+    Jan:Dec, # convert from wide to long
+    names_to = "month", # names of the columns into a new column named 'month'
+    values_to = "unemployment_rate"# values of the columns into a new column named 'unemployment_rate'
+    ) %>% 
+  mutate(month = month.name[match(month, month.abb)]) %>% # finds the position of each month abbreviation name in month.abb vector then concert these month abbreviation names to full month names
+
+select(year, month, unemployment_rate) # select 'year' and 'month' to show first and then 'unemployment_rate'
 
 ```
 
