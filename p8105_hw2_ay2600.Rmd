@@ -13,7 +13,8 @@ fontsize: 12pt
 ```{r load_libraries}
 library(tidyverse)
 library(readxl)
-library(lubridate)
+library(janitor)
+library(dplyr)
 ```
 
 ## Problem 1
@@ -77,4 +78,31 @@ data_538 =
   left_join(pols, snp) %>% 
   left_join(unemployment)
 ```
+
+
+
+## Problem 2
+
+### Clean Mr.Trash Wheel
+```{r clean_mr_trash_wheel}
+
+mr_trash_wheel =
+  read_excel("data/data_trashwheel/trash_wheel_collection.xlsx", sheet = 1, range = "A2:N586") %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(dumpster)) %>% 
+  mutate(
+    homes_powered = (homes_powered * 500) / 30
+  )
+
+```
+
+### Clean Professor. Trash Wheel
+
+```{r clean_professor_trash_wheel}
+prof_trash_wheel =
+  read_excel("data/data_trashwheel/trash_wheel_collection.xlsx",sheet = 2, range = "A2:M108") %>% 
+  janitor::clean_names()
+  
+```
+
 
