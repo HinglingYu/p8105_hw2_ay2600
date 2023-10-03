@@ -43,7 +43,8 @@ snp =
     year = as.numeric(year),
     year = ifelse(year < 50, year + 2000, year + 1900) # add 2000 to years value less than 50, 1900 to years value greater or equal to 50
   ) %>% #converts numeric month to full month names
-select(year, month, close, -day) # rearrange the columns so "year" and "month" at first, then "close". Remove "day"
+  select(year, month, close, -day) # rearrange the columns so "year" and "month" at first, then "close". Remove "day"
+
 
 ```
 
@@ -59,8 +60,7 @@ umeployment =
     values_to = "unemployment_rate"# values of the columns into a new column named 'unemployment_rate'
     ) %>% 
   mutate(month = month.name[match(month, month.abb)]) %>% # finds the position of each month abbreviation name in month.abb vector then concert these month abbreviation names to full month names
-
-select(year, month, unemployment_rate) # select 'year' and 'month' to show first and then 'unemployment_rate'
+  select(year, month, unemployment_rate) 
 
 ```
 
