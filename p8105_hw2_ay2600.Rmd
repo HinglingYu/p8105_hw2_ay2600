@@ -21,13 +21,13 @@ library(lubridate)
 ### First Step: Cleaning `pols-month.csv`
 
 ```{r clean_538_pols}
-pols <- read_csv("data/data_fivethirtyeight/pols-month.csv")
+pols <- read_csv("data/data_fivethirtyeight/pols-month.csv") #import the `pols-month.csv` file
 pols_clean <- pols %>% 
-  separate(mon, into = c("year", "month", "day"), sep = "-") %>%
+  separate(mon, into = c("year", "month", "day"), sep = "-") %>% # split the mon column into three columns: year, month, day
   mutate(
-    month = month.name[as.numeric(month)],
-    president = ifelse(prez_gop == 1, "gap", "dem")
+    month = month.name[as.numeric(month)], # converts numeric month values to full month names
+    president = ifelse(prez_gop == 1, "gop", "dem") # creates a new variable president, assign 'gop' if prez_gop = 1, otherwise assign 'dem'
   ) %>% 
-  select(year, month, everything(), -day, -starts_with("prez"))
+  select(everything(), -day, -starts_with("prez")) # select all variables except 'day' and everything starts with 'prez'
 ```
 
