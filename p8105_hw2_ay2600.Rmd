@@ -91,7 +91,7 @@ mr_trash_wheel =
   janitor::clean_names() %>% 
   filter(!is.na(dumpster)) %>% 
   mutate(
-    homes_powered = (homes_powered * 500) / 30
+    homes_powered = (weight_tons * 500) / 30
   )
 
 ```
@@ -101,8 +101,17 @@ mr_trash_wheel =
 ```{r clean_professor_trash_wheel}
 prof_trash_wheel =
   read_excel("data/data_trashwheel/trash_wheel_collection.xlsx",sheet = 2, range = "A2:M108") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  filter(!is.na(dumpster)) %>% 
+  mutate(
+    homes_powered = (weight_tons * 500) / 30
+  )
+  
   
 ```
+
+### Clean Gwynnda Trash Wheel
+
+
 
 
