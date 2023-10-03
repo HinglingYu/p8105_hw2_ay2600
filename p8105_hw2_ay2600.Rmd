@@ -18,3 +18,16 @@ library(lubridate)
 
 ## Problem 1
 
+### First Step: Cleaning `pols-month.csv`
+
+```{r clean_538_pols}
+pols <- read_csv("data/data_fivethirtyeight/pols-month.csv")
+pols_clean <- pols %>% 
+  separate(mon, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(
+    month = month.name[as.numeric(month)],
+    president = ifelse(prez_gop == 1, "gap", "dem")
+  ) %>% 
+  select(year, month, everything(), -day, -starts_with("prez"))
+```
+
