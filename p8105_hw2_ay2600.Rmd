@@ -194,10 +194,13 @@ mci_baseline =
 # mci_baseline is the final cleaned version after the participants don't have mci removed from mci_baseline_full
 ```
 
+### Description and important values of`mci_baseline`
 
-### important values of`mci_baseline`
+- In the `mci_baseline_full`, there are `r nrow(mci_baseline_full)` observations and `r ncol(mci_baseline_full)` variables. This data provided information of participants in the study. 
 
-There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r round(nrow(filter(mci_baseline, sex == "Female", apoe4 == "Carrier"))/nrow(filter(mci_baseline, sex == "Female")) * 100, 2)`% are APOE4 carriers.
+- During the cleaning process, `janitor::clean_names()` function was used to standardize the variable names. `mutate` function recode the `sex` variable into `Male` and `Female` categories based on the original numeric coding of 1 and other values. Similarly, the `apoe4` variable is recoded to `Carrier` and `Non carrier` categories. The `age_at_onset` is converted into numeric. Lastly, assigned a new dataset `mci_baseline`, which participants who do not have MCI excluded.
+
+- There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r round(nrow(filter(mci_baseline, sex == "Female", apoe4 == "Carrier"))/nrow(filter(mci_baseline, sex == "Female")) * 100, 2)`% are APOE4 carriers.
 
 ## Clean mci_amyloid
 
@@ -221,8 +224,6 @@ mci_amyloid =
 ```
 
 
-
-
 ## Combine both datasets
 
 ```{r combine}
@@ -233,5 +234,10 @@ mci_combine =
 str(mci_combine)
 ```
 
+
+```{r csv_mci_combine}
+write.csv(mci_combine, "data/mci_combine.csv")
+
+```
 
 
