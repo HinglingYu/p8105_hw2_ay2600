@@ -10,6 +10,10 @@ fontsize: 12pt
 
 ## Problem 0
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
+
 ```{r load_libraries}
 library(tidyverse)
 library(readxl)
@@ -76,7 +80,9 @@ unemployment =
 ```{r merge_538}
 data_538 =
   left_join(pols, snp) %>% 
-  left_join(unemployment)
+  left_join(unemployment) 
+
+str(data_538)
 ```
 
 
@@ -138,11 +144,15 @@ gwy_trash_wheel =
 trash_wheel_combine = 
   bind_rows(mr_trash_wheel, prof_trash_wheel, gwy_trash_wheel)
 
+str(trash_wheel_combine)
+
 ```
 
 ## Problem 3
 
-```{r}
+### Clean `mci_baseline`
+
+```{r clean_mci_baseline}
 mci_baseline = 
   read_csv("data/data_mci/mci_baseline.csv", skip = 1, na = ".") %>% 
   janitor::clean_names() %>%
@@ -154,11 +164,11 @@ mci_baseline =
   )
 ```
 
-### Below is the full version of mci_baseline regardless of mci or not for the description use
+### Below is the full version of mci_baseline without drop_na(age_at_onset) for the calculation use
 
-```{r}
+```{r mci_baseline_full, warning = FALSE}
 mci_baseline_full = 
-  read_csv("data/data_mci/mci_baseline.csv", skip = 1, na = ".") %>% 
+  read_csv("data/data_mci/mci_baseline.csv", skip = 1) %>% 
   janitor::clean_names() %>%
   mutate(
     sex = ifelse(sex == 1, "Male", "Female"),
@@ -167,14 +177,40 @@ mci_baseline_full =
   )
 ```
 
+### important values of`mci_baseline`
 
-### Description of `mci_baseline`
+There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline_full |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r mci_baseline_full |> filter(sex == 'Female') |> summarise(proportion = mean(apoe4 == 'Carrier') * 100) |> pull(proportion) |> round(2)`% are APOE4 carriers.
 
-There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r round(mean(mci_baseline_full$current_age),2)`. Among the women in the study, `r round(mean(mci_baseline_full$apoe4[mci_baseline_full$sex == 'Female'] == 'Carrier') * 100, 2)`% are APOE4 carriers.
+## Clean mci_amyloid
+
+```{r clean_mci_amyloid, warning = FALSE}
+mci_amyloid = 
+  read_csv("data/data_mci/mci_amyloid.csv", skip = 1, na = ".") %>% 
+  janitor::clean_names() %>% 
+  rename(
+    time_0 = baseline,
+    id = study_id
+  ) %>% 
+  pivot_longer(
+    time_0:time_8,
+    names_to = "time_in_years",
+    values_to = "amyloid_ratio"
+  ) %>% 
+  mutate(
+    amyloid_ratio = as.numeric(amyloid_ratio)
+  )
+
+```
 
 
+## Combine both datasets
 
+```{r combine}
+mci_combine = 
+  inner_join(mci_baseline, mci_amyloid, by = "id")
 
+str(mci_combine)
+```
 
 
 
