@@ -40,6 +40,7 @@ pols =
 
 
 ### Second Step: Cleaning `snp.csv`
+
 ```{r clean_538_snp}
 snp = 
   read_csv("data/data_fivethirtyeight/snp.csv") %>% #import the `snp.csv` file
@@ -56,6 +57,7 @@ snp =
 
 
 ### Third Step: Tidy `umeployment.csv`
+
 ```{r clean_538_unemployment}
 unemployment = 
   read_csv("data/data_fivethirtyeight/unemployment.csv") %>%  #import the `unemployment.csv`
@@ -90,8 +92,9 @@ str(data_538)
 ## Problem 2
 
 ### Clean Mr.Trash Wheel
-```{r clean_mr_trash_wheel}
 
+
+```{r clean_mr_trash_wheel}
 mr_trash_wheel =
   read_excel("data/data_trashwheel/trash_wheel_collection.xlsx", sheet = 1) %>% 
   janitor::clean_names() %>% 
@@ -104,6 +107,9 @@ mr_trash_wheel =
   )
 
 ```
+
+We clean the `mr_trash_wheel` data, provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r mr_trash_wheel |> pull(year) |> min()` to `r mr_trash_wheel |> pull(year) |> max()`. Each entry in the dataset represents a unique colelction event, with data on the date of collection, for example, like weight of waste `weight_tons`, volume of waste `volume_cubic_yards` etc. During the cleaning process, the `janitor` was used. Also, removed rows with missing dumpster values. Unnecessary columns `x15` and `x16` are dropped. We then calculate homes_powered using the formula `(weight_tons * 500) / 30` and add a `wheel_name` column with the value "Mr. Trash Wheel" for identification purposes. Additionally, the `year` column is converted to numeric values to facilitate subsequent analyses.
+
 
 ### Clean Professor. Trash Wheel
 
@@ -121,8 +127,9 @@ prof_trash_wheel =
   
 ```
 
-### Clean Gwynnda Trash Wheel
 
+
+### Clean Gwynnda Trash Wheel
 
 ```{r clean_gwynnda_trash_wheel}
 gwy_trash_wheel = 
@@ -148,38 +155,49 @@ str(trash_wheel_combine)
 
 ```
 
+
+## Description of Problem 2
+
+- For the `mr_trash_wheel` dataset, there are `r nrow(mr_trash_wheel)` observations and `r ncol(mr_trash_wheel)` variables. This data provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r mr_trash_wheel |> pull(year) |> min()` to `r mr_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
+
+-  For the `prof_trash_wheel` dataset, there are `r nrow(prof_trash_wheel)` observations and `r ncol(prof_trash_wheel)` variables. This data also provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r prof_trash_wheel |> pull(year) |> min()` to `r prof_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
+
+- For the `gwy_trash_wheel` dataset, there are `r nrow(gwy_trash_wheel)` observations and `r ncol(gwy_trash_wheel)` variables. This data also provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r gwy_trash_wheel |> pull(year) |> min()` to `r gwy_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
+
+- After cleaned and combined `mr_trash_wheel`, `prof_trash_wheel`, and `gwy_trash_wheel` by `year`, rows with missing dumpster values. Unnecessary columns `x15` and `x16` are dropped. `homes_powered` was calculated using the formula `(weight_tons * 500) / 30` and new variable name `wheel_name` column was created with the value "Mr. Trash Wheel", "Professor Trash Wheel" and "Gwynnda Trash Wheel" assigned to each dataset respectively for trash wheel identification purposes. 
+
+- The total weight collected by Professor Trash Wheel was `r trash_wheel_combine |> filter(wheel_name == "Professor Trash Wheel") |> pull(weight_tons) |> sum()` tons
+
+- There were `r trash_wheel_combine |> filter(wheel_name == "Gwynnda Trash Wheel", year == "2021", month == "July") |> pull(cigarette_butts) |> sum()` number of cigarette butts collected by Gwynnda in July of 2021
+
+
 ## Problem 3
 
 ### Clean `mci_baseline`
 
 ```{r clean_mci_baseline}
-mci_baseline = 
+mci_baseline_full = 
   read_csv("data/data_mci/mci_baseline.csv", skip = 1, na = ".") %>% 
   janitor::clean_names() %>%
-  drop_na(age_at_onset) %>% 
   mutate(
     sex = ifelse(sex == 1, "Male", "Female"),
     apoe4 = ifelse(apoe4 == 1, "Carrier", "Non carrier"),
     age_at_onset = as.numeric(age_at_onset)
   )
+
+# The mci_baseline_full is the complete cleaned data but without dropping the participants who do not have mci
+
+mci_baseline = 
+  mci_baseline_full %>% 
+  drop_na(age_at_onset) 
+
+# mci_baseline is the final cleaned version after the participants don't have mci removed from mci_baseline_full
 ```
 
-### Below is the full version of mci_baseline without drop_na(age_at_onset) for the calculation use
-
-```{r mci_baseline_full, warning = FALSE}
-mci_baseline_full = 
-  read_csv("data/data_mci/mci_baseline.csv", skip = 1) %>% 
-  janitor::clean_names() %>%
-  mutate(
-    sex = ifelse(sex == 1, "Male", "Female"),
-    apoe4 = ifelse(apoe4 == 1, "Carrier", "Non carrier"),
-    age_at_onset = as.numeric(age_at_onset)
-  )
-```
 
 ### important values of`mci_baseline`
 
-There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline_full |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r mci_baseline_full |> filter(sex == 'Female') |> summarise(proportion = mean(apoe4 == 'Carrier') * 100) |> pull(proportion) |> round(2)`% are APOE4 carriers.
+There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r round(nrow(filter(mci_baseline, sex == "Female", apoe4 == "Carrier"))/nrow(filter(mci_baseline, sex == "Female")) * 100, 2)`% are APOE4 carriers.
 
 ## Clean mci_amyloid
 
@@ -203,11 +221,14 @@ mci_amyloid =
 ```
 
 
+
+
 ## Combine both datasets
 
 ```{r combine}
 mci_combine = 
-  inner_join(mci_baseline, mci_amyloid, by = "id")
+  inner_join(mci_baseline, mci_amyloid, by = "id") %>% 
+  drop_na()
 
 str(mci_combine)
 ```
