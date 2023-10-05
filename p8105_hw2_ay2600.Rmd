@@ -108,7 +108,6 @@ mr_trash_wheel =
 
 ```
 
-We clean the `mr_trash_wheel` data, provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r mr_trash_wheel |> pull(year) |> min()` to `r mr_trash_wheel |> pull(year) |> max()`. Each entry in the dataset represents a unique colelction event, with data on the date of collection, for example, like weight of waste `weight_tons`, volume of waste `volume_cubic_yards` etc. During the cleaning process, the `janitor` was used. Also, removed rows with missing dumpster values. Unnecessary columns `x15` and `x16` are dropped. We then calculate homes_powered using the formula `(weight_tons * 500) / 30` and add a `wheel_name` column with the value "Mr. Trash Wheel" for identification purposes. Additionally, the `year` column is converted to numeric values to facilitate subsequent analyses.
 
 
 ### Clean Professor. Trash Wheel
@@ -145,7 +144,7 @@ gwy_trash_wheel =
 ```
 
 
-### Combine all `mr_trash_wheel`, `prof_trash_wheel`, and `gwy_trash_wheel
+### Combine all `mr_trash_wheel`, `prof_trash_wheel`, and `gwy_trash_wheel`
 
 ```{r merge_trash_wheel_combine}
 trash_wheel_combine = 
@@ -158,13 +157,13 @@ str(trash_wheel_combine)
 
 ## Description of Problem 2
 
-- For the `mr_trash_wheel` dataset, there are `r nrow(mr_trash_wheel)` observations and `r ncol(mr_trash_wheel)` variables. This data provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r mr_trash_wheel |> pull(year) |> min()` to `r mr_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
+- For the `mr_trash_wheel` dataset, there are `r nrow(mr_trash_wheel)` observations and `r ncol(mr_trash_wheel)` variables. This data provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r mr_trash_wheel |> pull(year) |> min()` to `r mr_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`. 
 
 -  For the `prof_trash_wheel` dataset, there are `r nrow(prof_trash_wheel)` observations and `r ncol(prof_trash_wheel)` variables. This data also provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r prof_trash_wheel |> pull(year) |> min()` to `r prof_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
 
 - For the `gwy_trash_wheel` dataset, there are `r nrow(gwy_trash_wheel)` observations and `r ncol(gwy_trash_wheel)` variables. This data also provides detail records of waste collection, capturing various information of waste items collected, ranging from years `r gwy_trash_wheel |> pull(year) |> min()` to `r gwy_trash_wheel |> pull(year) |> max()`. The key variables includes `dumpster`, `weight_tons`, `homes_powered`.
 
-- After cleaned and combined `mr_trash_wheel`, `prof_trash_wheel`, and `gwy_trash_wheel` by `year`, rows with missing dumpster values. Unnecessary columns `x15` and `x16` are dropped. `homes_powered` was calculated using the formula `(weight_tons * 500) / 30` and new variable name `wheel_name` column was created with the value "Mr. Trash Wheel", "Professor Trash Wheel" and "Gwynnda Trash Wheel" assigned to each dataset respectively for trash wheel identification purposes. 
+- In the resulting `trash_whell_combine` dataset, there are `r nrow(trash_wheel_combine)` observations and `r ncol(trash_wheel_combine)` variables. After cleaned and combined `mr_trash_wheel`, `prof_trash_wheel`, and `gwy_trash_wheel` by `year`, rows with missing dumpster values. Unnecessary columns `x15` and `x16` are dropped. `homes_powered` was calculated using the formula `(weight_tons * 500) / 30` and new variable name `wheel_name` column was created with the value "Mr. Trash Wheel", "Professor Trash Wheel" and "Gwynnda Trash Wheel" assigned to each dataset respectively for trash wheel identification purposes. 
 
 - The total weight collected by Professor Trash Wheel was `r trash_wheel_combine |> filter(wheel_name == "Professor Trash Wheel") |> pull(weight_tons) |> sum()` tons
 
@@ -196,11 +195,13 @@ mci_baseline =
 
 ### Description and important values of`mci_baseline`
 
-- In the `mci_baseline_full`, there are `r nrow(mci_baseline_full)` observations and `r ncol(mci_baseline_full)` variables. This data provided information of participants in the study. 
+- In the `mci_baseline_full`, there are `r nrow(mci_baseline_full)` observations and `r ncol(mci_baseline_full)` variables. This data provided basic demographic information of participants in the study. 
 
-- During the cleaning process, `janitor::clean_names()` function was used to standardize the variable names. `mutate` function recode the `sex` variable into `Male` and `Female` categories based on the original numeric coding of 1 and other values. Similarly, the `apoe4` variable is recoded to `Carrier` and `Non carrier` categories. The `age_at_onset` is converted into numeric. Lastly, assigned a new dataset `mci_baseline`, which participants who do not have MCI excluded.
+- During the cleaning process, `janitor::clean_names()` function was used to standardize the variable names. `mutate` function changed the `sex` variable into `Male` and `Female` categories based on the original numeric coding of 1 and other values. Similarly, the `apoe4` variable is changed to `Carrier` and `Non carrier` categories. The `age_at_onset` is converted into numeric. Lastly, assigned a new dataset `mci_baseline`, which participants who do not have MCI excluded, and this is final version of baseline.
 
 - There are a total of `r nrow(mci_baseline_full)` participants were recruited for the study. Of these participants, `r nrow(mci_baseline)` participants developed MCI. The average baseline age is `r mci_baseline |> pull(current_age) |> mean() |> round(2)`. Among the women in the study, `r round(nrow(filter(mci_baseline, sex == "Female", apoe4 == "Carrier"))/nrow(filter(mci_baseline, sex == "Female")) * 100, 2)`% are APOE4 carriers.
+
+
 
 ## Clean mci_amyloid
 
@@ -219,12 +220,32 @@ mci_amyloid =
   ) %>% 
   mutate(
     amyloid_ratio = as.numeric(amyloid_ratio)
-  )
+  ) %>% 
+  drop_na()
+
+
 
 ```
 
+### Description of `mci_amyloid`
 
-## Combine both datasets
+- In the `mci_amyloid`, there are `r nrow(mci_amyloid)` observations and `r ncol(mci_amyloid)` variables. This data provided information of participants in the study with `time_in_years` elapsed since the study baseline to the visit and also the biomarker `amyloid_ratio` was measure. 
+
+- During the cleaning process, we skipped the first row and interpreting periods as missing value.  `janitor::clean_names()` function was used to standardize the variable names for consistency. The `rename` function is applied to change the variable name `baseline` to `time_0` for reading consistency; And `rename` function applied, so variable name `study_id` changed to `id` to match the `id` in `mci_baseline`. Next, the data transferred from wide format to long format by using the `pivot_longer` function. This process involves converting columns `time_0`, `time_2`, `time_4`, and `time_8` into two columns `time_in_years` and `amyloid_ratio` by using the `mutate` function. So, the `time_in_years` column now holds the time information, while `amyloid_ratio` column contains the corresponding `amyloid_ratio` values. Finally, `amyloid_ratio` is converted to numeric.
+
+
+## Check the participant that only in `mci_baseline` or `mci_amyloid`
+
+```{r}
+mci_baseline_only = anti_join(mci_baseline, mci_amyloid, by = "id")
+mci_amyloid_only = anti_join(mci_amyloid, mci_baseline, by = "id")
+```
+
+### Description of the `mci_baseline_only` and `mci_amyloid_only`
+
+- After checking if there are participants appear only in `mci_baseline` or `mci_amyloid`, there are only `r nrow(mci_baseline_only)` participants appear in `mci_baseline` data, with `id`, `14`, `49`, `268`. On the other hand, there are `r nrow(mci_amyloid_only)` participants appear only in the `mci_amyloid` data.
+
+## Combine both datasets 
 
 ```{r combine}
 mci_combine = 
@@ -233,7 +254,9 @@ mci_combine =
 
 str(mci_combine)
 ```
+### Description of the `mci_combine` data
 
+- In the `mci_combine` dataset, the `inner_join` function was applied so that only participants who appear in both `mci_baseline` and `mci_amyloid` are retained.There are `r nrow(mci_combine)` observations and `r ncol(mci_combine)` variables. 
 
 ```{r csv_mci_combine}
 write.csv(mci_combine, "data/mci_combine.csv")
